@@ -79,6 +79,9 @@
                         $.ajax({
                             url: "/admin/ingredients/" + id,
                             type: "DELETE",
+                            data: {
+                                _token: "{{ csrf_token() }}"
+                            },
                             success: function() {
                                 table.ajax.reload();
                             }

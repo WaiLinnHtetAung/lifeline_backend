@@ -84,6 +84,9 @@
                         $.ajax({
                             url: "/admin/principles/" + id,
                             type: "DELETE",
+                            data: {
+                                _token: "{{ csrf_token() }}"
+                            },
                             success: function() {
                                 table.ajax.reload();
                             }
