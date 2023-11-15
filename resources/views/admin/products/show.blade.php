@@ -41,7 +41,7 @@
                     </td>
                 </tr>
             </table>
-            <button class="btn btn-outline-secondary mt-3 back-btn">Back to List</button>
+            <button class="btn btn-outline-secondary mt-3 back-btn">Back to List </button>
         </div>
     </div>
 @endsection
