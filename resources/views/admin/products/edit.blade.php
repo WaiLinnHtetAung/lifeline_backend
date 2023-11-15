@@ -78,7 +78,7 @@
             </div>
             <div class="mt-5">
                 <button class="btn btn-secondary back-btn">Cancel</button>
-                <button class="btn btn-primary">Create</button>
+                <button class="btn btn-primary">Create </button>
             </div>
         </form>
     </div>
