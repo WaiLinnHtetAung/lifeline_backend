@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PrincipleController;
@@ -39,6 +40,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin', 'as' => 'admin.'], fu
     //principle
     Route::get('/principle-datatable', [PrincipleController::class, 'dataTable']);
     Route::resource('principles', PrincipleController::class);
+
+    //category
+    Route::get('/category-datatable', [CategoryController::class, 'dataTable']);
+    Route::resource('categories', CategoryController::class);
 
     //ingredient
     Route::get('/ingredient-datatable', [IngredientController::class, 'dataTable']);

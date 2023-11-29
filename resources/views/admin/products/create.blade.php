@@ -27,7 +27,23 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-4 col-md-12 col-sm-12 col-12">
+                    <div class="form-group mb-4">
+                        <label for="">{{ __('messages.product.fields.category') }}</label>
+                        <select name="category_id" id="" class="form-control select2"
+                            data-placeholder="--- Please Select ---">
+                            <option value=""></option>
+                            @foreach ($categories as $id => $value)
+                                <option value="{{ $id }}" {{ old('category_id') == $id ? 'selected' : '' }}>
+                                    {{ $value }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-12 col-12 mt-3">
                     <div class="form-group mb-4">
                         <label for="">{{ __('messages.product.fields.principle') }}</label>
                         <select name="principle_id" id="" class="form-control select2"
@@ -40,9 +56,7 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-8 col-md-12 col-sm-12 col-12 mt-3">
+                <div class="col-lg-8 col-md-8 col-sm-12 col-12 mt-3">
                     <div class="form-group mb-4">
                         <label for="">{{ __('messages.product.fields.photo') }}</label>
                         <div class="needslick dropzone" id="image-dropzone">
@@ -53,7 +67,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-lg-8 col-md-12 col-sm-12 col-12">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-12">
                     <div class="form-group mb-4">
                         <label for="">{{ __('messages.product.fields.ingredient') }}</label>
                         <div class="mb-2">

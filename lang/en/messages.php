@@ -11,6 +11,13 @@ return [
         ],
     ],
 
+    'category' => [
+        'title' => 'Category',
+        'fields' => [
+            'name' => 'Name',
+        ],
+    ],
+
     'ingredient' => [
         'title' => 'Ingredient',
         'fields' => [
@@ -26,6 +33,7 @@ return [
             'ingredient' => 'Ingredients',
             'photo' => 'Photo',
             'principle' => 'Principle',
+            'category' => 'Category',
         ],
     ],
 ];

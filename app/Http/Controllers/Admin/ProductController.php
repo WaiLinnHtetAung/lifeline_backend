@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
+use App\Models\Category;
 use App\Models\Ingredient;
 use App\Models\Principle;
 use App\Models\Product;
@@ -29,7 +30,7 @@ class ProductController extends Controller
      */
     public function dataTable()
     {
-        $data = Product::with('ingredients', 'principle');
+        $data = Product::with('ingredients', 'principle', 'category');
 
         return Datatables::of($data)
             ->editColumn('plus-icon', function ($each) {
@@ -37,6 +38,11 @@ class ProductController extends Controller
             })
             ->filterColumn('principle_id', function ($query, $keyword) {
                 $query->whereHas('principle', function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%$keyword%");
+                });
+            })
+            ->filterColumn('category_id', function ($query, $keyword) {
+                $query->whereHas('category', function ($q) use ($keyword) {
                     $q->where('name', 'like', "%$keyword%");
                 });
             })
@@ -50,6 +56,9 @@ class ProductController extends Controller
             })
             ->editColumn('price', function ($each) {
                 return number_format($each->price ?? '00000') . ' MMK';
+            })
+            ->editColumn('category_id', function ($each) {
+                return $each->category->name;
             })
             ->editColumn('principle_id', function ($each) {
                 return $each->principle->name;
@@ -94,8 +103,9 @@ class ProductController extends Controller
     {
         $ingredients = Ingredient::pluck('name', 'id');
         $principles = Principle::pluck('name', 'id');
+        $categories = Category::pluck('name', 'id');
 
-        return view('admin.products.create', compact('ingredients', 'principles'));
+        return view('admin.products.create', compact('ingredients', 'principles', 'categories'));
     }
 
     /**
@@ -152,6 +162,7 @@ class ProductController extends Controller
             return redirect()->route('admin.products.index')->with('success', 'Successfully Created !');
         } catch (\Exception $error) {
             DB::rollback();
+            return $error->getMessage();
             return back()->withErrors(['fail', 'Something wrong. ' . $error->getMessage()])->withInput();
         }
     }
@@ -161,7 +172,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product = $product->load('ingredients', 'principle');
+        $product = $product->load('ingredients', 'principle', 'category');
 
         return view('admin.products.show', compact('product'));
     }

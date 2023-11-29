@@ -78,12 +78,20 @@
         </li>
         @can('product_management_access')
             <li
-                class="menu-item {{ request()->is('admin/ingredients') || request()->is('admin/ingredients/*') || request()->is('admin/products') || request()->is('admin/products/*') ? 'active open' : '' }}">
+                class="menu-item {{ request()->is('admin/ingredients') || request()->is('admin/ingredients/*') || request()->is('admin/products') || request()->is('admin/products/*') || request()->is('admin/categories') || request()->is('admin/categories/*') ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class='menu-icon tf-icons bx bxs-capsule'></i>
                     <div data-i18n="Account Settings">Products Management</div>
                 </a>
                 <ul class="menu-sub">
+                    @can('category_access')
+                        <li
+                            class="menu-item {{ request()->is('admin/categories') || request()->is('admin/categories/*') ? 'active open' : '' }}">
+                            <a href="{{ route('admin.categories.index') }}" class="menu-link">
+                                <div data-i18n="Account">{{ __('messages.category.title') }}</div>
+                            </a>
+                        </li>
+                    @endcan
                     @can('ingredient_access')
                         <li
                             class="menu-item {{ request()->is('admin/ingredients') || request()->is('admin/ingredients/*') ? 'active open' : '' }}">

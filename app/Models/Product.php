@@ -11,7 +11,7 @@ class Product extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
-    protected $fillable = ['name', 'price', 'principle_id'];
+    protected $fillable = ['name', 'price', 'principle_id', 'category_id'];
 
     public function principle()
     {
@@ -21,6 +21,11 @@ class Product extends Model implements HasMedia
     public function ingredients()
     {
         return $this->belongsToMany(Ingredient::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 
     public function productImages()

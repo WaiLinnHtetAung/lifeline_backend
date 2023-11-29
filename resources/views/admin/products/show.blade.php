@@ -33,6 +33,10 @@
                     <td>{{ number_format($product->price ?? '00000') . ' MMK' }}</td>
                 </tr>
                 <tr>
+                    <th>{{ __('messages.product.fields.category') }}</th>
+                    <td>{{ $product->category->name }}</td>
+                </tr>
+                <tr>
                     <th>{{ __('messages.product.fields.principle') }}</th>
                     <td>{{ $product->principle->name }}</td>
                 </tr>

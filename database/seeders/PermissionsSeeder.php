@@ -109,6 +109,21 @@ class PermissionsSeeder extends Seeder
             [
                 'title' => 'principle_access',
             ],
+            [
+                'title' => 'category_create',
+            ],
+            [
+                'title' => 'category_edit',
+            ],
+            [
+                'title' => 'category_show',
+            ],
+            [
+                'title' => 'category_delete',
+            ],
+            [
+                'title' => 'category_access',
+            ],
         ];
 
         Permission::insert($permissions);
