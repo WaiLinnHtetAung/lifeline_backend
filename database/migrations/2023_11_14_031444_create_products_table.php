@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('price')->nullable();
-            $table->string('photo')->nullable();
             $table->foreignId('principle_id')->references('id')->on('principles')->onDelete('cascade');
             $table->timestamps();
         });

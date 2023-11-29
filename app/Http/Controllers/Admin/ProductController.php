@@ -9,7 +9,9 @@ use App\Models\Ingredient;
 use App\Models\Principle;
 use App\Models\Product;
 use DataTables;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -39,7 +41,12 @@ class ProductController extends Controller
                 });
             })
             ->editColumn('photo', function ($each) {
-                return '<img src="' . $each->imgUrl() . '" width="100" />';
+
+                if ($each->getMedia('images') && $each->getMedia('images')->count() > 0) {
+                    return '<img src="' . $each->getMedia('images')[0]->getUrl() . '" width="100" />';
+                } else {
+                    return '<img src="' . asset('default.png') . '" width="100" />';
+                }
             })
             ->editColumn('price', function ($each) {
                 return number_format($each->price ?? '00000') . ' MMK';
@@ -92,6 +99,41 @@ class ProductController extends Controller
     }
 
     /**
+     * store images from dropzone
+     */
+    public function storeMedia(Request $request)
+    {
+        $path = storage_path('tmp/uploads');
+
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        $file = $request->file('file');
+
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
+        $file->move($path, $name);
+
+        return response()->json([
+            'name' => $name,
+            'original_name' => $file->getClientOriginalName(),
+        ]);
+    }
+
+    /**
+     * delete dropzone photos
+     */
+    public function deleteMedia(Request $request)
+    {
+        $file = $request->file_name;
+
+        File::delete(storage_path('tmp/uploads/' . $file));
+
+        return 'success';
+
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreProductRequest $request)
@@ -100,11 +142,8 @@ class ProductController extends Controller
         try {
             $product = Product::create($request->all());
 
-            if ($request->file('photo')) {
-                $fileName = uniqid() . $request->file('photo')->getClientOriginalName();
-                $request->file('photo')->storeAs('public/images', $fileName);
-
-                $product->update(['photo' => $fileName]);
+            foreach ($request->input('images', []) as $image) {
+                $product->addMedia(storage_path('tmp/uploads/' . $image))->toMediaCollection('images');
             }
 
             $product->ingredients()->sync($request->input('ingredients', []));
@@ -144,20 +183,34 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
+        DB::beginTransaction();
+        try {
+            $product->update($request->all());
 
-        $oldPhotoName = $product->photo;
-        $product->update($request->all());
-        if ($request->file('photo')) {
-            if ($oldPhotoName) {
-                Storage::disk('public')->delete("images/" . $oldPhotoName);
+            if (count($product->productImages()) > 0) {
+                foreach ($product->productImages() as $media) {
+                    if (!in_array($media->file_name, $request->input('images', []))) {
+                        $media->delete();
+                    }
+                }
             }
 
-            $newPhotoName = uniqid() . $request->file('photo')->getClientOriginalName();
-            $request->file('photo')->storeAs('public/images', $newPhotoName);
-            $product->update(['photo' => $newPhotoName]);
-        }
+            $media = $product->productImages()->pluck('file_name')->toArray();
 
-        $product->ingredients()->sync($request->input('ingredients', []));
+            foreach ($request->input('images', []) as $file) {
+                if (count($media) === 0 || !in_array($file, $media)) {
+                    $product->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('images');
+                }
+            }
+
+            $product->ingredients()->sync($request->input('ingredients', []));
+
+            DB::commit();
+
+        } catch (\Exception $error) {
+            DB::rollback();
+            return back()->withErrors(['fail', 'Something wrong. ' . $error->getMessage()])->withInput();
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Successfully Edited !');
     }

@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
-    protected $fillable = ['name', 'price', 'photo', 'principle_id'];
+    protected $fillable = ['name', 'price', 'principle_id'];
 
     public function principle()
     {
@@ -21,12 +23,9 @@ class Product extends Model
         return $this->belongsToMany(Ingredient::class);
     }
 
-    public function imgUrl()
+    public function productImages()
     {
-        if ($this->photo) {
-            return asset('storage/images/' . $this->photo);
-        } else {
-            return asset('default.png');
-        }
+        return collect($this->getMedia('images'));
     }
+
 }

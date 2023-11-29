@@ -30,17 +30,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                    <div class="form-group mb-4">
-                        <label for="">{{ __('messages.product.fields.photo') }}</label>
-                        <input type="file" class="form-control" name="photo" onchange="showPreview(this);">
-                        <img src="{{ $product->imgUrl() }}" alt="" class="mt-3" id="imgPreview" width="100">
-                    </div>
-                </div>
-            </div>
-            <div class="row">
                 <div class="col-lg-4 col-md-12 col-sm-12 col-12">
-                    <div class="form-group mb-4 mt-4 pt-2">
+                    <div class="form-group mb-4 ">
                         <label for="">{{ __('messages.product.fields.principle') }}</label>
                         <select name="principle_id" id="" class="form-control select2"
                             data-placeholder="--- Please Select ---">
@@ -51,6 +42,20 @@
                                     {{ $value }}</option>
                             @endforeach
                         </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-8 col-md-12 col-sm-12 col-12 mt-3">
+                    <div class="form-group mb-4">
+                        <label for="">{{ __('messages.product.fields.photo') }}</label>
+                        <div class="needslick dropzone" id="image-dropzone">
+
+                        </div>
+                        @error('images')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
                 <div class="col-lg-8 col-md-12 col-sm-12 col-12">
@@ -88,16 +93,69 @@
     {!! JsValidator::formRequest('App\Http\Requests\Admin\UpdateProductRequest', '#product_edit') !!}
 
     <script>
-        const showPreview = (input) => {
-            if (input.files && input.files[0]) {
-                let reader = new FileReader();
+        let uploadedImageMap = {}
+        Dropzone.options.imageDropzone = {
+            url: "{{ route('admin.products.storeMedia') }}",
+            maxFilesize: 10,
+            addRemoveLinks: true,
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            success: function(file, response) {
 
-                reader.onload = function(e) {
-                    $('#imgPreview').attr('src', e.target.result).width(150).height(150);
-                }
+                $('form').append('<input type="hidden" name="images[]" value="' + response.name + '">')
+                uploadedImageMap[file.name] = response.name
+            },
+            removedfile: function(file) {
+                file.previewElement.remove();
+                let name = file.file_name || uploadedImageMap[file.name];
+                $('input[name="images[]"][value="' + name + '"]').remove();
+                $.ajax({
+                    url: "{{ route('admin.products.deleteMedia') }}", // Change this to the appropriate delete route
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        file_name: name
+                    },
+                    success: function(response) {
+                        console.log("File deleted successfully:", response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error deleting file:", error);
+                    }
+                });
+            },
+            init: function() {
+                @if (isset($product) && $product->productImages())
+                    var files = {!! json_encode($product->productImages()) !!}
 
-                reader.readAsDataURL(input.files[0]);
-            }
+                    for (var i in files) {
+                        var server_url = `{{ url('/media/${files[i].order_column}/') }}`;
+                        var file = {
+                            name: files[i].file_name,
+                            size: files[i].size,
+                            accepted: true
+                        };
+
+                        this.files.push(file); // Add the file to Dropzone's files array
+                        this.emit("addedfile", file); // Emit the "addedfile" event
+                        this.emit("thumbnail", file, server_url + '/' + files[i]
+                            .file_name); // Emit the "thumbnail" event
+                        this.emit("complete", file); // Emit the "complete" event
+
+                        $('form').append('<input type="hidden" name="images[]" value="' + files[i].file_name + '">')
+                        uploadedImageMap[file.name] = files[i].file_name
+
+                        // Adjust thumbnail image styles to fit within a container
+                        var thumbnailElement = this.files[i].previewElement.querySelector(".dz-image img");
+                        thumbnailElement.style.maxWidth = "100%";
+                        thumbnailElement.style.height = "auto";
+                    }
+                @endif
+
+            },
+
+
         }
     </script>
 @endsection

@@ -46,6 +46,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin', 'as' => 'admin.'], fu
 
     //products
     Route::get('/product-datatable', [ProductController::class, 'dataTable']);
+    Route::post('/products/storeMedia', [ProductController::class, 'storeMedia'])->name('products.storeMedia');
+    Route::post('/products/deleteMedia', [ProductController::class, 'deleteMedia'])->name('products.deleteMedia');
     Route::resource('products', ProductController::class);
 });
 

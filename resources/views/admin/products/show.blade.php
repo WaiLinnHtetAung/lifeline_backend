@@ -16,9 +16,13 @@
             <table class="table table-bordered table-striped" id="DataTable">
                 <tr>
                     <th>{{ __('messages.product.fields.photo') }}</th>
-                    <th>
-                        <img src="{{ $product->imgUrl() }}" alt="" width="200">
-                    </th>
+                    <td>
+                        <div class="d-flex align-items-center gap-4 overflow-x-scroll">
+                            @foreach ($product->getMedia('images') as $image)
+                                <img src="{{ $image->getUrl() }}" alt="" width="200">
+                            @endforeach
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <th>{{ __('messages.product.fields.name') }}</th>
