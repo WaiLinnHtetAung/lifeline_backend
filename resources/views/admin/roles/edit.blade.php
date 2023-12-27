@@ -16,7 +16,7 @@
                 <div class="col-lg-4 col-md-5 col-sm-12 col-12">
                     <div class="form-group mb-4">
                         <label for="">Name</label>
-                        <input type="text" name="name" class="form-control" value="{{ $role->name, old('name') }}">
+                        <input type="text" name="name" class="form-control" value="{{ $role->name }}">
                     </div>
                 </div>
                 <div class="col-12">
